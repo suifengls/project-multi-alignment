@@ -111,12 +111,6 @@ int main(int argc, char ** argv)
     clock_t end = clock();
     cout << "Execution time : " << (double)(end - start)/CLOCKS_PER_SEC << endl;
 
-    sort(midpoint.begin(), midpoint.end(), &ranking);
-    for(int i = 0; i < midpoint.size(); i++)
-    {
-        pp = midpoint[i];
-        //printf("Find the crossing point (%d, %d, %d)\n", pp.x, pp.y, pp.z);
-    }
 
     return 0;
 }
@@ -127,24 +121,23 @@ void alignment(int si, int sj, int sk, int ei, int ej, int ek)
     int lj = ej - sj + 1;
     int lk = ek - sk + 1;
 
-    if(ei - si <= 1)
+    if(li <= 1)
         return;
 
     //cout << "scoring matrix size : [" << lj << "][" << lk << "]" << endl;
 
-    int mid = (ei+si)/2;
+    int mid = (ei-si)/2;
     int score1[2][lj+1][lk+1];
     int score2[2][lj+1][lk+1];
     for(int i = 0; i <= 1; i++)
         for(int j = 0; j <= lj; j++)
             for(int k = 0; k <= lk; k++)
             {
-                score1[i][j][k] = -10000;
-                score2[i][j][k] = -10000;
+                score1[i][j][k] = 0;
+                score2[i][j][k] = 0;
             }
 
 
-    score1[0][0][0] = 0;
     for(int k = 1; k <= lk; k++)
     {
         score1[0][0][k] = scoring[4][4][s3[sk+k-1]] * k;
@@ -176,8 +169,8 @@ void alignment(int si, int sj, int sk, int ei, int ej, int ek)
         }
 
     int ly = 0;
-    for(int i = 1; i <= mid-si; i++)  // mid
-    //for(int i = 1; i <= li; i++)
+    //for(int i = 1; i <= mid-si; i++)  // mid
+    for(int i = 1; i <= li; i++)
     {
         ly = (ly+1)%2;
 
@@ -261,18 +254,9 @@ void alignment(int si, int sj, int sk, int ei, int ej, int ek)
         }
     }
     int fwd = ly;
-    //cout << "forward score: " << score1[fwd][lj][lk] << endl;
-    /*
-    for(int i = 0; i <= lj; i++)
-    {
-        for(int j = 0; j <= lk; j++)
-            cout << score1[fwd][i][j] << "\t";
-        cout << endl;
-    }
-    */
+    cout << "forward score: " << score1[fwd][lj][lk] << endl;
     // -------------------------------------- backward --------------------------------//
 
-    score2[0][0][0] = 0;
     for(int k = lk-1; k >= 0; k--)
         score2[0][lj][k] = scoring[4][4][s3[sk+k]]*(lk-k);
     for(int j = lj-1; j >= 0; j--)
@@ -302,10 +286,18 @@ void alignment(int si, int sj, int sk, int ei, int ej, int ek)
             score2[0][j][k] = mm;
         }
 
+    /*
+    for(int i = 0; i <= lj; i++)
+    {
+        for(int j = 0; j <= lk; j++)
+            cout << score2[0][i][j] << "\t";
+        cout << endl;
+    }
+    */
 
     ly = 0;
-    for(int i = li-1; i >= mid; i--)  // mid
-    //for(int i = li-1; i >= 0; i--)
+    //for(int i = 1; i <= mid-si; i++)  // mid
+    for(int i = li-1; i >= 0; i--)
     {
         ly = (ly+1)%2;
 
@@ -389,48 +381,8 @@ void alignment(int si, int sj, int sk, int ei, int ej, int ek)
         }
     }
     int bwd = ly;
-    /*
-    for(int i = 0; i <= lj; i++)
-    {
-        for(int j = 0; j <= lk; j++)
-            cout << score2[bwd][i][j] << "\t";
-        cout << endl;
-    }
-    */
-    //cout << "backward score: " << score2[bwd][0][0] << endl;
 
-    // find the max sum of two score layer in mid
-    int max = score1[fwd][0][0] + score2[bwd][0][0];
-    int mx = mid;
-    int my = sj;
-    int mz = sk;
-    for(int j = 0; j <= lj; j++)
-        for(int k = 0; k <= lk; k++)
-        {
-            if(score1[fwd][j][k]+score2[bwd][j][k] > max)
-            {
-                max = score1[fwd][j][k]+score2[bwd][j][k];
-                my = sj + j;
-                mz = sk + k;
-            }
-        }
-
-    point3d pp;
-    pp.x = mx;
-    pp.y = my;
-    pp.z = mz;
-    midpoint.push_back(pp);
-    //cout << "Find a mid point (" << mx << ", " << my << ", " << mz << ")" << endl;
-    //printf("(%d, %d, %d) -> (%d, %d, %d) = (%d, %d, %d)\n", si, sj, sk, ei, ej, ek, pp.x, pp.y, pp.z);
-
-    if(maxvalue)
-    {
-        maxvalue = false;
-        cout << "Final score: " << max << endl;
-    }
-
-    alignment(si, sj, sk, mx, my, mz);
-    alignment(mx, my, mz, ei, ej, ek);
+    cout << "backward score: " << score2[bwd][0][0] << endl;
 
     return;
 }
