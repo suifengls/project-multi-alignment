@@ -124,7 +124,7 @@ void alignment(int si, int sj, int sk, int ei, int ej, int ek)
     if(li <= 1)
         return;
 
-    cout << "scoring matrix size : [" << lj << "][" << lk << "]" << endl;
+    //cout << "scoring matrix size : [" << lj << "][" << lk << "]" << endl;
 
     int mid = (ei-si)/2;
     int score1[2][lj+1][lk+1];
@@ -137,7 +137,6 @@ void alignment(int si, int sj, int sk, int ei, int ej, int ek)
                 score2[i][j][k] = 0;
             }
 
-    cout << "Init scoring matrix done" << endl;
 
     for(int k = 1; k <= lk; k++)
     {
@@ -258,10 +257,10 @@ void alignment(int si, int sj, int sk, int ei, int ej, int ek)
     cout << "forward score: " << score1[fwd][lj][lk] << endl;
     // -------------------------------------- backward --------------------------------//
 
-    for(int k = lk; k >= 0; k--)
-        score2[0][lj][k] = scoring[4][4][s3[sk+k-1]]*(lk-k);
-    for(int j = lj; j >= 0; j--)
-        score2[0][j][lk] = scoring[4][s2[sj+j-1]][4]*(lj-j);
+    for(int k = lk-1; k >= 0; k--)
+        score2[0][lj][k] = scoring[4][4][s3[sk+k]]*(lk-k);
+    for(int j = lj-1; j >= 0; j--)
+        score2[0][j][lk] = scoring[4][s2[sj+j]][4]*(lj-j);
 
     for(int j = lj-1; j >= 0; j--)
         for(int k = lk-1; k >= 0; k--)
@@ -270,11 +269,11 @@ void alignment(int si, int sj, int sk, int ei, int ej, int ek)
             int mm = 0;
             int ss[3] = {-10000, -10000, -10000};
             // - j k
-            ss[0] = score2[0][j+1][k+1] + scoring[4][s2[sj+j-1]][s3[sk+k-1]];
+            ss[0] = score2[0][j+1][k+1] + scoring[4][s2[sj+j]][s3[sk+k]];
             // - j -
-            ss[1] = score2[0][j+1][k] + scoring[4][s2[sj+j-1]][4];
+            ss[1] = score2[0][j+1][k] + scoring[4][s2[sj+j]][4];
             // - - k
-            ss[2] = score2[0][j][k+1] + scoring[4][4][s3[sk+k-1]];
+            ss[2] = score2[0][j][k+1] + scoring[4][4][s3[sk+k]];
 
             mm = ss[0];
             for(int i = 1; i < 3; i++)
@@ -302,18 +301,18 @@ void alignment(int si, int sj, int sk, int ei, int ej, int ek)
     {
         ly = (ly+1)%2;
 
-        score2[ly][lj][lk] = score2[(ly+1)%2][lj][lk] + scoring[s1[si+i-1]][4][4];
+        score2[ly][lj][lk] = score2[(ly+1)%2][lj][lk] + scoring[s1[si+i]][4][4];
 
         for(int t = lj-1; t >= 0; t--)
         {
             int ss[3] = {-10000, -10000, -10000};
             int mm = 0;
             // i j -
-            ss[0] = score2[(ly+1)%2][t+1][lk] + scoring[s1[si+i-1]][s2[sj+t-1]][4];
+            ss[0] = score2[(ly+1)%2][t+1][lk] + scoring[s1[si+i]][s2[sj+t]][4];
             // i - -
-            ss[1] = score2[(ly+1)%2][t][lk] + scoring[s1[si+i-1]][4][4];
+            ss[1] = score2[(ly+1)%2][t][lk] + scoring[s1[si+i]][4][4];
             // - j -
-            ss[2] = score2[ly][t+1][lk] + scoring[4][s2[sj+t-1]][4];
+            ss[2] = score2[ly][t+1][lk] + scoring[4][s2[sj+t]][4];
 
             mm = ss[0];
             for(int i = 1; i < 3; i++)
@@ -330,11 +329,11 @@ void alignment(int si, int sj, int sk, int ei, int ej, int ek)
             int ss[3] = {-10000, -10000, -10000};
             int mm = 0;
             // i - k
-            ss[0] = score2[(ly+1)%2][lj][t+1] + scoring[s1[si+i-1]][4][s2[sk+t-1]];
+            ss[0] = score2[(ly+1)%2][lj][t+1] + scoring[s1[si+i]][4][s2[sk+t-1]];
             // i - -
-            ss[1] = score2[(ly+1)%2][lj][t] + scoring[s1[si+i-1]][4][4];
+            ss[1] = score2[(ly+1)%2][lj][t] + scoring[s1[si+i]][4][4];
             // - - k
-            ss[2] = score2[ly][lj][t+1] + scoring[4][4][s2[sk+t-1]];
+            ss[2] = score2[ly][lj][t+1] + scoring[4][4][s2[sk+t]];
 
             mm = ss[0];
             for(int i = 1; i < 3; i++)
@@ -356,19 +355,19 @@ void alignment(int si, int sj, int sk, int ei, int ej, int ek)
                 int ply = (ly+1)%2;
 
                 // i j k
-                ss[0] = score2[ply][j+1][k+1] + scoring[s1[si+i-1]][s2[sj+j-1]][s3[sk+k-1]];
+                ss[0] = score2[ply][j+1][k+1] + scoring[s1[si+i]][s2[sj+j]][s3[sk+k]];
                 // i j -
-                ss[1] = score2[ply][j+1][k] + scoring[s1[si+i-1]][s2[sj+j-1]][4];
+                ss[1] = score2[ply][j+1][k] + scoring[s1[si+i]][s2[sj+j]][4];
                 // i - k
-                ss[2] = score2[ply][j][k+1] + scoring[s1[si+i-1]][4][s3[sk+k-1]];
+                ss[2] = score2[ply][j][k+1] + scoring[s1[si+i]][4][s3[sk+k]];
                 // - j k
-                ss[3] = score2[ly][j+1][k+1] + scoring[4][s2[sj+j-1]][s3[sk+k-1]];
+                ss[3] = score2[ly][j+1][k+1] + scoring[4][s2[sj+j]][s3[sk+k]];
                 // i - -
-                ss[4] = score2[ply][j][k] + scoring[s1[si+i-1]][4][4];
+                ss[4] = score2[ply][j][k] + scoring[s1[si+i]][4][4];
                 // - j -
-                ss[5] = score2[ly][j+1][k] + scoring[4][s2[sj+j-1]][4];
+                ss[5] = score2[ly][j+1][k] + scoring[4][s2[sj+j]][4];
                 // - - k
-                ss[6] = score2[ly][j][k+1] + scoring[4][4][s3[sk+k-1]];
+                ss[6] = score2[ly][j][k+1] + scoring[4][4][s3[sk+k]];
                 mm = ss[0];
                 for(int i = 1; i < 7; i++)
                 {
