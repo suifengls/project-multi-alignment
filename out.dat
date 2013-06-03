@@ -1,0 +1,30 @@
+----- Test case one -----
+seq 1 size : 576
+seq 2 size : 569
+seq 3 size : 556
+Max value: 5262
+Execution time: 11.14
+----- Test case two -----
+seq 1 size : 1449
+seq 2 size : 1628
+seq 3 size : 1612
+Max value: 12362
+Execution time: 227.49
+----- Test case three -----
+seq 1 size : 1825
+seq 2 size : 1792
+seq 3 size : 2628
+Max value: 8793
+Execution time: 498.47
+----- Test case four -----
+seq 1 size : 4737
+seq 2 size : 3241
+seq 3 size : 4371
+Max value: -478
+Execution time: 4027.66
+----- Test case five -----
+seq 1 size : 6132
+seq 2 size : 6305
+seq 3 size : 6287
+Max value: 56537
+Execution time: 13002
