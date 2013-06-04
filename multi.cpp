@@ -121,18 +121,17 @@ int main(int argc, char ** argv)
     sort(midpoint.begin(), midpoint.end(), &ranking);
     //cout << midpoint.size() << endl;
     
-    /*
-    for(int i = 1; i < midpoint.size()-1; i++)
+    for(int i = 0; i < midpoint.size()-1; i++)
     //for(int i = 0; i < 1; i++)
     {
         point3d pp = midpoint[i];
         point3d qq = midpoint[i+1];
-        printf("Find the crossing point (%d, %d, %d) to (%d, %d, %d)\n", pp.x, pp.y, pp.z, qq.x, qq.y, qq.z);
+        //printf("Find the crossing point (%d, %d, %d) to (%d, %d, %d)\n", pp.x, pp.y, pp.z, qq.x, qq.y, qq.z);
         backtrace(pp.x, pp.y, pp.z, qq.x, qq.y, qq.z);
-        cout << "---len = " << length << endl;
+        //cout << "---len = " << length << endl;
     }
     cout << "Alignment length: " << length << endl;
-    */
+    
     return 0;
 }
 
@@ -372,17 +371,23 @@ void alignment(int si, int sj, int sk, int ei, int ej, int ek)
     if(li <= 1)
         return;
 
-    //cout << "scoring matrix size : [" << lj << "][" << lk << "]" << endl;
+//    cout << "scoring matrix size : [" << lj+1 << "][" << lk+1 << "]" << endl;
 
     int mid = (ei+si)/2;
+/*
+    cout << "si = " << si << " ei = " << ei << endl;
+    cout << "sj = " << sj << " ej = " << ej << endl;
+    cout << "sk = " << sk << " ek = " << ek << endl;
+    cout << "mid = " << mid << endl;
+  */
     int score1[2][lj+1][lk+1];
     int score2[2][lj+1][lk+1];
     for(int i = 0; i <= 1; i++)
         for(int j = 0; j <= lj; j++)
             for(int k = 0; k <= lk; k++)
             {
-                score1[i][j][k] = -10000;
-                score2[i][j][k] = -10000;
+                score1[i][j][k] = -100000;
+                score2[i][j][k] = -100000;
             }
 
 
@@ -392,8 +397,9 @@ void alignment(int si, int sj, int sk, int ei, int ej, int ek)
         score1[0][0][k] = scoring[4][4][s3[sk+k]] * k;
     }
     for(int j = 1; j <= lj; j++)
+    {
         score1[0][j][0] = scoring[4][s2[sj+j]][4] * j;
-
+    }
     for(int j = 1; j <= lj; j++)
         for(int k = 1; k <= lk; k++)
         {
@@ -548,7 +554,7 @@ void alignment(int si, int sj, int sk, int ei, int ej, int ek)
 
 
     ly = 0;
-    for(int i = li-1; i >= mid; i--)  // mid
+    for(int i = li-1; i >= mid - si; i--)  // mid
     //for(int i = li-1; i >=0; i--)
     {
         ly = (ly+1)%2;
@@ -658,6 +664,7 @@ void alignment(int si, int sj, int sk, int ei, int ej, int ek)
                 max = score1[fwd][j][k]+score2[bwd][j][k];
                 my = sj + j;
                 mz = sk + k;
+                //cout << "Find  (" << mx << ", " << my << ", " << mz << ")" << endl;
             }
         }
 
@@ -666,16 +673,16 @@ void alignment(int si, int sj, int sk, int ei, int ej, int ek)
     pp.y = my;
     pp.z = mz;
     midpoint.push_back(pp);
-    cout << "Find a mid point (" << mx << ", " << my << ", " << mz << ")" << endl;
+    //            cout << "Find  (" << mx << ", " << my << ", " << mz << ")" << endl;
     //printf("(%d, %d, %d) -> (%d, %d, %d) = (%d, %d, %d)\n", si, sj, sk, ei, ej, ek, pp.x, pp.y, pp.z);
 
-    //if(maxvalue)
+    if(maxvalue)
     {
         maxvalue = false;
         cout << "Alignment score: " << max << endl;
     }
 
-    //alignment(si, sj, sk, mx, my, mz);
+    alignment(si, sj, sk, mx, my, mz);
     alignment(mx, my, mz, ei, ej, ek);
 
     return;
