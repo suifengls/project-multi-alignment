@@ -51,9 +51,12 @@ bool ranking(const point3d &lhs, const point3d &rhs)
 }
 
 bool maxvalue = true;
+int length = 0;
+int pm = 0;
 
 void createscoring();
 void alignment(int, int, int, int, int, int);
+void backtrace(int, int, int, int, int, int);
 
 int main(int argc, char ** argv)
 {
@@ -112,14 +115,260 @@ int main(int argc, char ** argv)
     cout << "Execution time : " << (double)(end - start)/CLOCKS_PER_SEC << endl;
 
     sort(midpoint.begin(), midpoint.end(), &ranking);
-    for(int i = 0; i < midpoint.size(); i++)
+    //for(int i = 0; i < midpoint.size()-1; i++)
+    for(int i = 0; i < 5; i++)
     {
-        pp = midpoint[i];
-        //printf("Find the crossing point (%d, %d, %d)\n", pp.x, pp.y, pp.z);
+        point3d pp = midpoint[i];
+        point3d qq = midpoint[i+1];
+        printf("Find the crossing point (%d, %d, %d) to (%d, %d, %d)\n", pp.x, pp.y, pp.z, qq.x, qq.y, qq.z);
+        if(pp.x == qq.x && pp.y == qq.y && pp.z == qq.z)
+            continue;
+        //else if(pp.x)
+        backtrace(pp.x, pp.y, pp.z, qq.x, qq.y, qq.z);
     }
+    cout << "Alignment length: " << length << endl;
 
     return 0;
 }
+
+
+void backtrace(int si, int sj, int sk, int ei, int ej, int ek)
+{
+    int li = ei - si + 1;
+    int lj = ej - sj + 1;
+    int lk = ek - sk + 1;
+
+    //cout << "scoring matrix size : [" << lj << "][" << lk << "]" << endl;
+
+    int mid = (ei+si)/2;
+    int score1[2][lj][lk];
+    int trace[2][lj][lk];
+    for(int i = 0; i <= 1; i++)
+        for(int j = 0; j < lj; j++)
+            for(int k = 0; k < lk; k++)
+            {
+                score1[i][j][k] = -10000;
+                trace[i][j][k] = -1;
+            }
+
+
+    score1[0][0][0] = 0;
+    trace[0][0][0] = -1; // start point
+    for(int k = 1; k < lk; k++)
+    {
+        score1[0][0][k] = scoring[4][4][s3[sk+k-1]] * k;
+        trace[0][0][k] = 6;
+    }
+    for(int j = 1; j < lj; j++)
+    {
+        score1[0][j][0] = scoring[4][s2[sj+j-1]][4] * j;
+        trace[0][j][0] = 5;
+    }
+
+    for(int j = 1; j < lj; j++)
+        for(int k = 1; k < lk; k++)
+        {
+            int mm = 0;
+            int ss[3] = {-10000, -10000, -10000};
+            int dir = 0;
+
+            // - j k
+            ss[0] = score1[0][j-1][k-1] + scoring[4][s2[sj+j-1]][s3[sk+k-1]];
+            // - j -
+            ss[1] = score1[0][j-1][k] + scoring[4][s2[sj+j-1]][4];
+            // - - k
+            ss[2] = score1[0][j][k-1] + scoring[4][4][s3[sk+k-1]];
+
+            mm = ss[0];
+            dir = 4;
+            for(int i = 1; i < 3; i++)
+            {
+                if(ss[i] > mm)
+                {
+                    mm = ss[i];
+                    if(i == 1)
+                        dir = 5;
+                    if(i == 2)
+                        dir = 6;
+                }
+            }
+            score1[0][j][k] = mm;
+            trace[0][j][k] = dir;
+        }
+
+    int ly = 0;
+    for(int i = 1; i < li; i++)  // mid
+    //for(int i = 1; i <= li; i++)
+    {
+        ly = (ly+1)%2;
+        cout << ly << endl;
+
+        score1[ly][0][0] = score1[(ly+1)%2][0][0] + scoring[s1[si+i-1]][4][4];
+        trace[ly][0][0] = 3;
+
+        for(int t = 1; t < lj; t++)
+        {
+            int ss[3] = {-10000, -10000, -10000};
+            int mm = 0;
+            int dir = 0;
+            // i j -
+            ss[0] = score1[(ly+1)%2][t-1][0] + scoring[s1[si+i-1]][s2[sj+t-1]][4];
+            // i - -
+            ss[1] = score1[(ly+1)%2][t][0] + scoring[s1[si+i-1]][4][4];
+            // - j -
+            ss[2] = score1[ly][t-1][0] + scoring[4][s2[sj+t-1]][4];
+
+            mm = ss[0];
+            dir = 1;
+            for(int i = 1; i < 3; i++)
+            {
+                if(ss[i] > mm)
+                {
+                    mm = ss[i];
+                    if(i == 1)
+                        dir = 3;
+                    if(i == 2)
+                        dir = 5;
+                }
+            }
+            score1[ly][t][0] = mm;
+            trace[ly][t][0] = dir;
+        }
+        for(int t = 1; t < lk; t++)
+        {
+            int ss[3] = {-10000, -10000, -10000};
+            int mm = 0;
+            int dir = 0;
+            // i - k
+            ss[0] = score1[(ly+1)%2][0][t-1] + scoring[s1[si+i-1]][4][s2[sk+t-1]];
+            // i - -
+            ss[1] = score1[(ly+1)%2][0][t] + scoring[s1[si+i-1]][4][4];
+            // - - k
+            ss[2] = score1[ly][0][t-1] + scoring[4][4][s2[sk+t-1]];
+
+            mm = ss[0];
+            dir = 2;
+            for(int i = 1; i < 3; i++)
+            {
+                if(ss[i] > mm)
+                {
+                    mm = ss[i];
+                    if(i == 1)
+                        dir = 3;
+                    if(i == 2)
+                        dir = 6;
+                }
+            }
+            score1[ly][0][t] = mm;
+            trace[ly][0][t] = dir;
+        }
+
+        for(int j = 1; j < lj; j++)
+        {
+            for(int k = 1; k < lk; k++)
+            {
+                int ss[7] = {-10000, -10000, -10000, -10000, -10000, -10000, -10000};
+                int mm = 0;
+                int ply = (ly+1)%2;
+                int dir = 0;
+
+                // i j k
+                ss[0] = score1[ply][j-1][k-1] + scoring[s1[si+i-1]][s2[sj+j-1]][s3[sk+k-1]];
+                // i j -
+                ss[1] = score1[ply][j-1][k] + scoring[s1[si+i-1]][s2[sj+j-1]][4];
+                // i - k
+                ss[2] = score1[ply][j][k-1] + scoring[s1[si+i-1]][4][s3[sk+k-1]];
+                // - j k
+                ss[4] = score1[ly][j-1][k-1] + scoring[4][s2[sj+j-1]][s3[sk+k-1]];
+                // i - -
+                ss[3] = score1[ply][j][k] + scoring[s1[si+i-1]][4][4];
+                // - j -
+                ss[5] = score1[ly][j-1][k] + scoring[4][s2[sj+j-1]][4];
+                // - - k
+                ss[6] = score1[ly][j][k-1] + scoring[4][4][s3[sk+k-1]];
+
+                mm = ss[0];
+                dir = 0;
+                for(int i = 1; i < 7; i++)
+                {
+                    if(ss[i] > mm)
+                    {
+                        mm = ss[i];
+                        dir = i;
+                    }
+                }
+                score1[ly][j][k] = mm;
+                trace[ly][j][k] = dir;
+            }
+        }
+    }
+
+    for(int i = 0; i < lj; i++)
+    {
+        for(int j = 0; j < lk; j++)
+            cout << trace[0][i][j] << "\t";
+        cout << endl;
+    }
+
+        for(int i = 0; i < lj; i++)
+    {
+    for(int j = 0; j < lk; j++)
+            cout << trace[1][i][j] << "\t";
+        cout << endl;
+    }
+
+    // find the path from (ei, ej, ek) to (si, sj, sk)
+    int j = lj-1;
+    int k = lk-1;
+    int i = 1;
+    int p = 0;
+
+    while(1)
+    {
+        cout << "i = " << i << " j = " << j << " k = " << k << endl;
+        p = trace[i][j][k];
+        if(p < 0)
+            return;
+
+
+        switch(p)
+        {
+            case 0: // perfect matching
+                pm++;
+                i--;
+                j--;
+                k--;
+                break;
+            case 1:
+                i--;
+                j--;
+                break;
+            case 2:
+                i--;
+                k--;
+                break;
+            case 3:
+                i--;
+                break;
+            case 4:
+                j--;
+                k--;
+                break;
+            case 5:
+                j--;
+                break;
+            case 6:
+                k--;
+                break;
+        }
+        if(i<0 || j<0 || k<0)
+            return;
+        length++;
+    }
+
+    return;
+}
+
 
 void alignment(int si, int sj, int sk, int ei, int ej, int ek)
 {

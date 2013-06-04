@@ -6,7 +6,7 @@ echo "----- Test case one -----"
 ./multi test2/NM_000558.txt test2/NM_008218.txt test2/NM_013096.txt
 #echo "----- Test case two -----"
 # max 12362
-./multi test3/NM_001030004.txt test3/NM_178850.2.txt test3/XM_514664.txt
+#./multi test3/NM_001030004.txt test3/NM_178850.2.txt test3/XM_514664.txt
 #echo "----- Test case three -----"
 #max 8793
 #./threeseq test4/NM_001243563.1.txt test4/NM_010019.3.txt test4/NM_014326.3.txt 
