@@ -1,30 +1,81 @@
+(c)
+-------------------------
+Output of the program:
 ----- Test case one -----
 sequence size : 576 569 556
 Alignment score: 5262
 Alignment length: 592
 Perfect matching length: 552
-Execution time : 2.73
+Execution time : 2.73 s
+Memory usage: 7.5 MB
 ----- Test case two -----
 sequence size : 1449 1628 1612
 Alignment score: 12249
 Alignment length: 1763
 Perfect matching length: 1428
 Execution time : 59.19
+Memory usage: 63 MB
 ----- Test case three -----
 sequence size : 1825 1792 2628
 Alignment score: 4000
 Alignment length: 2728
 Perfect matching length: 1670
 Execution time : 129.15
+Memory usage: 113 MB
 ----- Test case four -----
 sequence size : 4737 3241 4371
 Alignment score: -490
 Alignment length: 4872
 Perfect matching length: 3179
 Execution time : 1016.17
+Memory usage: 340 MB
 ----- Test case five -----
 sequence size : 6132 6305 6287
 Alignment score: 56537
 Alignment length: 6464
 Perfect matching length: 5994
 Execution time : 3690.26
+Memory usage: 951 MB
+
+-----------------------------
+Used computer cluster of our lab (tardis.cs.ucr.edu)
+CPU:
+processor	: 0
+vendor_id	: AuthenticAMD
+cpu family	: 21
+model		: 1
+model name	: AMD Opteron(TM) Processor 6272                 
+stepping	: 2
+cpu MHz		: 1400.000
+cache size	: 2048 KB
+physical id	: 0
+siblings	: 16
+core id		: 0
+cpu cores	: 8
+apicid		: 32
+initial apicid	: 0
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 13
+wp		: yes
+bogomips	: 4199.88
+TLB size	: 1536 4K pages
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 48 bits physical, 48 bits virtual
+power management: ts ttp tm 100mhzsteps hwpstate cpb
+
+------------------------------
+MEM:
+MemTotal:       65952124 kB
+MemFree:        35992580 kB
+Buffers:          709544 kB
+Cached:         25643324 kB
+SwapCached:         7348 kB
+Active:         10505804 kB
+Inactive:       16750676 kB
+
+(d)
+We can see that the number of perfect matching is very high (80% - 90%).
+Also, from the final alignment, we can see that there are some obvious 
+conserved regions captured.
