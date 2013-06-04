@@ -1,4 +1,3 @@
-#include "boost/multi_array.hpp"
 #include <algorithm>
 #include <iostream>
 #include <string>
@@ -7,8 +6,6 @@
 #include <time.h>
 
 using namespace std;
-
-typedef boost::multi_array<int, 3> score_type;
 
 const int MATCH = 5;
 const int MISMATCH = -4;
@@ -115,22 +112,19 @@ int main(int argc, char ** argv)
 
     clock_t start = clock();
     alignment(0, 0, 0, s1.size()-1, s2.size()-1, s3.size()-1);
-    clock_t end = clock();
-    cout << "Execution time : " << (double)(end - start)/CLOCKS_PER_SEC << endl;
 
     sort(midpoint.begin(), midpoint.end(), &ranking);
-    //cout << midpoint.size() << endl;
     
     for(int i = 0; i < midpoint.size()-1; i++)
-    //for(int i = 0; i < 1; i++)
     {
         point3d pp = midpoint[i];
         point3d qq = midpoint[i+1];
-        //printf("Find the crossing point (%d, %d, %d) to (%d, %d, %d)\n", pp.x, pp.y, pp.z, qq.x, qq.y, qq.z);
         backtrace(pp.x, pp.y, pp.z, qq.x, qq.y, qq.z);
-        //cout << "---len = " << length << endl;
     }
     cout << "Alignment length: " << length << endl;
+    cout << "Perfect matching length: " << pm << endl;
+    clock_t end = clock();
+    cout << "Execution time : " << (double)(end - start)/CLOCKS_PER_SEC << endl;
     
     return 0;
 }
@@ -141,8 +135,6 @@ void backtrace(int si, int sj, int sk, int ei, int ej, int ek)
     int li = ei - si;
     int lj = ej - sj;
     int lk = ek - sk;
-
-    //cout << "scoring matrix size : [" << lj << "][" << lk << "]" << endl;
 
     int mid = (ei+si)/2;
     int score1[2][lj+1][lk+1];
@@ -199,7 +191,6 @@ void backtrace(int si, int sj, int sk, int ei, int ej, int ek)
         }
 
     int ly = 0;
-    //for(int i = 1; i <= mid-si; i++)  // mid
     for(int i = 1; i <= li; i++)
     {
         ly = (ly+1)%2;
@@ -301,16 +292,6 @@ void backtrace(int si, int sj, int sk, int ei, int ej, int ek)
         }
     }
 
-    /*
-    for(int i = 0; i <= li; i++)
-        for(int j = 0; j <= lj; j++)
-        {
-            for(int k = 0; k <= lk; k++)
-                cout << trace[i][j][k] << "\t";
-            cout << endl;
-        }
-    */
-
     int i = li;
     int j = lj;
     int k = lk;
@@ -318,7 +299,6 @@ void backtrace(int si, int sj, int sk, int ei, int ej, int ek)
     while(1)
     {
         p = trace[i][j][k];
-        //cout << "i = " << i << " j = " << j << " k = " << k <<  " dir = " << p << endl;
         if(p < 0)
         {
             return;
@@ -371,15 +351,8 @@ void alignment(int si, int sj, int sk, int ei, int ej, int ek)
     if(li <= 1)
         return;
 
-//    cout << "scoring matrix size : [" << lj+1 << "][" << lk+1 << "]" << endl;
-
     int mid = (ei+si)/2;
-/*
-    cout << "si = " << si << " ei = " << ei << endl;
-    cout << "sj = " << sj << " ej = " << ej << endl;
-    cout << "sk = " << sk << " ek = " << ek << endl;
-    cout << "mid = " << mid << endl;
-  */
+
     int score1[2][lj+1][lk+1];
     int score2[2][lj+1][lk+1];
     for(int i = 0; i <= 1; i++)
@@ -425,7 +398,6 @@ void alignment(int si, int sj, int sk, int ei, int ej, int ek)
 
     int ly = 0;
     for(int i = 1; i <= mid-si; i++)  // mid
-    //for(int i = 1; i <= li; i++)
     {
         ly = (ly+1)%2;
 
@@ -509,18 +481,8 @@ void alignment(int si, int sj, int sk, int ei, int ej, int ek)
         }
     }
     int fwd = ly;
-    //cout << "forward score: " << score1[fwd][lj][lk] << endl;
-    /*
-    for(int i = 0; i <= lj; i++)
-    {
-        for(int j = 0; j <= lk; j++)
-            cout << score1[fwd][i][j] << "\t";
-        cout << endl;
-    }
-    */
     // -------------------------------------- backward --------------------------------//
 
-//    cout << "li = " << li << " lj = " << lj << " lk = " << lk << endl;
     score2[0][lj][lk] = 0;
     for(int k = lk; k >= 0; k--)
         score2[0][lj][k] = scoring[4][4][s3[sk+k]]*(lk-k);
@@ -555,7 +517,6 @@ void alignment(int si, int sj, int sk, int ei, int ej, int ek)
 
     ly = 0;
     for(int i = li-1; i >= mid - si; i--)  // mid
-    //for(int i = li-1; i >=0; i--)
     {
         ly = (ly+1)%2;
 
@@ -641,16 +602,6 @@ void alignment(int si, int sj, int sk, int ei, int ej, int ek)
         }
     }
     int bwd = ly;
-    /*
-    for(int ii = 0; ii <= lj; ii++)
-    {
-        for(int jj = 0; jj <= lk; jj++)
-            cout << score2[bwd][ii][jj] << "\t";
-        cout << endl;
-    }
-    */
-    //cout << "backward score: " << score2[bwd][0][0] << endl;
-
     // find the max sum of two score layer in mid
     int max = score1[fwd][0][0] + score2[bwd][0][0];
     int mx = mid;
@@ -664,7 +615,6 @@ void alignment(int si, int sj, int sk, int ei, int ej, int ek)
                 max = score1[fwd][j][k]+score2[bwd][j][k];
                 my = sj + j;
                 mz = sk + k;
-                //cout << "Find  (" << mx << ", " << my << ", " << mz << ")" << endl;
             }
         }
 
@@ -673,8 +623,6 @@ void alignment(int si, int sj, int sk, int ei, int ej, int ek)
     pp.y = my;
     pp.z = mz;
     midpoint.push_back(pp);
-    //            cout << "Find  (" << mx << ", " << my << ", " << mz << ")" << endl;
-    //printf("(%d, %d, %d) -> (%d, %d, %d) = (%d, %d, %d)\n", si, sj, sk, ei, ej, ek, pp.x, pp.y, pp.z);
 
     if(maxvalue)
     {

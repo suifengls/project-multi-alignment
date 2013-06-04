@@ -1,30 +1,30 @@
 ----- Test case one -----
-seq 1 size : 576
-seq 2 size : 569
-seq 3 size : 556
-Max value: 5262
-Execution time: 11.14
+sequence size : 576 569 556
+Alignment score: 5262
+Alignment length: 592
+Perfect matching length: 552
+Execution time : 2.73
 ----- Test case two -----
-seq 1 size : 1449
-seq 2 size : 1628
-seq 3 size : 1612
-Max value: 12362
-Execution time: 227.49
+sequence size : 1449 1628 1612
+Alignment score: 12249
+Alignment length: 1763
+Perfect matching length: 1428
+Execution time : 59.19
 ----- Test case three -----
-seq 1 size : 1825
-seq 2 size : 1792
-seq 3 size : 2628
-Max value: 8793
-Execution time: 498.47
+sequence size : 1825 1792 2628
+Alignment score: 4000
+Alignment length: 2728
+Perfect matching length: 1670
+Execution time : 129.15
 ----- Test case four -----
-seq 1 size : 4737
-seq 2 size : 3241
-seq 3 size : 4371
-Max value: -478
-Execution time: 4027.66
+sequence size : 4737 3241 4371
+Alignment score: -490
+Alignment length: 4872
+Perfect matching length: 3179
+Execution time : 1016.17
 ----- Test case five -----
-seq 1 size : 6132
-seq 2 size : 6305
-seq 3 size : 6287
-Max value: 56537
-Execution time: 13002
+sequence size : 6132 6305 6287
+Alignment score: 56537
+Alignment length: 6464
+Perfect matching length: 5994
+Execution time : 3690.26
