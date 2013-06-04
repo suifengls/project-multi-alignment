@@ -121,6 +121,7 @@ int main(int argc, char ** argv)
     sort(midpoint.begin(), midpoint.end(), &ranking);
     //cout << midpoint.size() << endl;
     
+    /*
     for(int i = 1; i < midpoint.size()-1; i++)
     //for(int i = 0; i < 1; i++)
     {
@@ -128,10 +129,10 @@ int main(int argc, char ** argv)
         point3d qq = midpoint[i+1];
         printf("Find the crossing point (%d, %d, %d) to (%d, %d, %d)\n", pp.x, pp.y, pp.z, qq.x, qq.y, qq.z);
         backtrace(pp.x, pp.y, pp.z, qq.x, qq.y, qq.z);
-
+        cout << "---len = " << length << endl;
     }
     cout << "Alignment length: " << length << endl;
-
+    */
     return 0;
 }
 
@@ -146,12 +147,12 @@ void backtrace(int si, int sj, int sk, int ei, int ej, int ek)
 
     int mid = (ei+si)/2;
     int score1[2][lj+1][lk+1];
-    int trace[li+1][lk+1][lj+1];
+    int trace[li+1][lj+1][lk+1];
     for(int i = 0; i <= li; i++)
-        for(int j = 0; j <= lk; j++)
-            for(int k = 0; k <= lj; k++)
+        for(int j = 0; j <= lj; j++)
+            for(int k = 0; k <= lk; k++)
             {
-                score1[i][j][k] = -10000;
+                score1[i][j][k] = 0;
                 trace[i][j][k] = -1;
             }
 
@@ -161,12 +162,12 @@ void backtrace(int si, int sj, int sk, int ei, int ej, int ek)
     for(int k = 1; k <= lk; k++)
     {
         score1[0][0][k] = scoring[4][4][s3[sk+k]] * k;
-        trace[0][k][0] = 5;
+        trace[0][0][k] = 5;
     }
     for(int j = 1; j <= lj; j++)
     {
         score1[0][j][0] = scoring[4][s2[sj+j]][4] * j;
-        trace[0][0][j] = 6;
+        trace[0][j][0] = 6;
     }
 
     for(int j = 1; j <= lj; j++)
@@ -195,7 +196,7 @@ void backtrace(int si, int sj, int sk, int ei, int ej, int ek)
                 }
             }
             score1[0][j][k] = mm;
-            trace[0][k][j] = dir;
+            trace[0][j][k] = dir;
         }
 
     int ly = 0;
@@ -232,18 +233,18 @@ void backtrace(int si, int sj, int sk, int ei, int ej, int ek)
                 }
             }
             score1[ly][t][0] = mm;
-            trace[i][0][t] = dir;
+            trace[i][t][0] = dir;
         }
         for(int t = 1; t <= lk; t++)
         {
             int ss[3] = {-10000, -10000, -10000};
             int mm = 0;
             // i - k
-            ss[0] = score1[(ly+1)%2][0][t-1] + scoring[s1[si+i]][4][s2[sk+t]];
+            ss[0] = score1[(ly+1)%2][0][t-1] + scoring[s1[si+i]][4][s3[sk+t]];
             // i - -
             ss[1] = score1[(ly+1)%2][0][t] + scoring[s1[si+i]][4][4];
             // - - k
-            ss[2] = score1[ly][0][t-1] + scoring[4][4][s2[sk+t]];
+            ss[2] = score1[ly][0][t-1] + scoring[4][4][s3[sk+t]];
 
             mm = ss[0];
             int dir = 2;
@@ -259,7 +260,7 @@ void backtrace(int si, int sj, int sk, int ei, int ej, int ek)
                 }
             }
             score1[ly][0][t] = mm;
-            trace[i][t][0] = dir;
+            trace[i][0][t] = dir;
         }
 
         for(int j = 1; j <= lj; j++)
@@ -296,31 +297,31 @@ void backtrace(int si, int sj, int sk, int ei, int ej, int ek)
                     }
                 }
                 score1[ly][j][k] = mm;
-                trace[i][k][j] = dir;
+                trace[i][j][k] = dir;
             }
         }
     }
 
     /*
     for(int i = 0; i <= li; i++)
-        for(int j = 0; j <= lk; j++)
+        for(int j = 0; j <= lj; j++)
         {
-            for(int k = 0; k <= lj; k++)
+            for(int k = 0; k <= lk; k++)
                 cout << trace[i][j][k] << "\t";
             cout << endl;
         }
     */
+
     int i = li;
     int j = lj;
     int k = lk;
     int p = 0;
     while(1)
     {
-        p = trace[i][k][j];
+        p = trace[i][j][k];
         //cout << "i = " << i << " j = " << j << " k = " << k <<  " dir = " << p << endl;
         if(p < 0)
         {
-            //cout << p << endl;
             return;
         }
 
@@ -338,7 +339,7 @@ void backtrace(int si, int sj, int sk, int ei, int ej, int ek)
                 break;
             case 2:
                 i--;
-                j--;
+                k--;
                 break;
             case 3:
                 j--;
@@ -352,7 +353,7 @@ void backtrace(int si, int sj, int sk, int ei, int ej, int ek)
                 break;
             case 6:
                 j--;
-                break; 
+                break;
         }
 
         length++;
@@ -450,11 +451,11 @@ void alignment(int si, int sj, int sk, int ei, int ej, int ek)
             int ss[3] = {-10000, -10000, -10000};
             int mm = 0;
             // i - k
-            ss[0] = score1[(ly+1)%2][0][t-1] + scoring[s1[si+i]][4][s2[sk+t]];
+            ss[0] = score1[(ly+1)%2][0][t-1] + scoring[s1[si+i]][4][s3[sk+t]];
             // i - -
             ss[1] = score1[(ly+1)%2][0][t] + scoring[s1[si+i]][4][4];
             // - - k
-            ss[2] = score1[ly][0][t-1] + scoring[4][4][s2[sk+t]];
+            ss[2] = score1[ly][0][t-1] + scoring[4][4][s3[sk+t]];
 
             mm = ss[0];
             for(int i = 1; i < 3; i++)
@@ -580,11 +581,11 @@ void alignment(int si, int sj, int sk, int ei, int ej, int ek)
             int ss[3] = {-10000, -10000, -10000};
             int mm = 0;
             // i - k
-            ss[0] = score2[(ly+1)%2][lj][t+1] + scoring[s1[si+i+1]][4][s2[sk+t+1]];
+            ss[0] = score2[(ly+1)%2][lj][t+1] + scoring[s1[si+i+1]][4][s3[sk+t+1]];
             // i - -
             ss[1] = score2[(ly+1)%2][lj][t] + scoring[s1[si+i+1]][4][4];
             // - - k
-            ss[2] = score2[ly][lj][t+1] + scoring[4][4][s2[sk+t+1]];
+            ss[2] = score2[ly][lj][t+1] + scoring[4][4][s3[sk+t+1]];
 
             mm = ss[0];
             for(int i = 1; i < 3; i++)
@@ -665,16 +666,16 @@ void alignment(int si, int sj, int sk, int ei, int ej, int ek)
     pp.y = my;
     pp.z = mz;
     midpoint.push_back(pp);
-    //cout << "Find a mid point (" << mx << ", " << my << ", " << mz << ")" << endl;
+    cout << "Find a mid point (" << mx << ", " << my << ", " << mz << ")" << endl;
     //printf("(%d, %d, %d) -> (%d, %d, %d) = (%d, %d, %d)\n", si, sj, sk, ei, ej, ek, pp.x, pp.y, pp.z);
 
-    if(maxvalue)
+    //if(maxvalue)
     {
         maxvalue = false;
-        cout << "Final score: " << max << endl;
+        cout << "Alignment score: " << max << endl;
     }
 
-    alignment(si, sj, sk, mx, my, mz);
+    //alignment(si, sj, sk, mx, my, mz);
     alignment(mx, my, mz, ei, ej, ek);
 
     return;
